@@ -14,10 +14,11 @@ import (
 )
 
 var (
-	reg  = flag.String("registry", "", "The registry to pull from")
-	imgs = flag.String("images", "", "Path to a new-line delimited list of image names")
-	tag  = flag.String("tag", "", "The tag to pull")
-	outf = flag.String("output", "", "The file to write the JSON to.")
+	reg   = flag.String("registry", "", "The registry to pull from")
+	imgs  = flag.String("images", "", "Path to a new-line delimited list of image names")
+	tag   = flag.String("tag", "", "The tag to pull")
+	outf  = flag.String("output", "", "The file to write the JSON to.")
+	files = flag.String("files", "", "A list of files that need to be included in the manifest.")
 )
 
 func init() {
@@ -165,6 +166,27 @@ func ReadImages(filename string) ([]string, error) {
 	return ReadLines(filebytes), nil
 }
 
+// ReadFilesList reads in the list of files that need to be included in the drop
+// and returns the map.
+func ReadFilesList(filename string) (map[string]string, error) {
+	filebytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+	retval := make(map[string]string)
+	err = json.Unmarshal(filebytes, &retval)
+	if err != nil {
+		return nil, err
+	}
+	return retval, nil
+}
+
+// OutputMap contains the info that is written out to a file.
+type OutputMap struct {
+	DropFiles    map[string]string         `json:"drop_files"`
+	DockerImages map[string][]*VersionInfo `json:"docker_images"`
+}
+
 func main() {
 	if *imgs == "" {
 		log.Fatal("--images must be set")
@@ -182,6 +204,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error reading images: %s", err)
 	}
+	dropFiles, err := ReadFilesList(*files)
+	if err != nil {
+		log.Fatalf("Error reading files list: %s", err)
+	}
 	imageVersions := make(map[string][]*VersionInfo)
 	for _, image := range images {
 		fmt.Println(image)
@@ -196,7 +222,11 @@ func main() {
 		}
 		imageVersions[spec.String()] = append(imageVersions[spec.String()], v)
 	}
-	imgJSON, err := json.MarshalIndent(imageVersions, "", "  ")
+	output := &OutputMap{
+		DropFiles:    dropFiles,
+		DockerImages: imageVersions,
+	}
+	imgJSON, err := json.MarshalIndent(output, "", "  ")
 	if err != nil {
 		log.Fatalf("Error marshalling JSON: %s", err)
 	}
