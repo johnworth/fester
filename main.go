@@ -39,13 +39,13 @@ func NewVersionInfo(parsefrom []string, imageID string) *VersionInfo {
 	var appver, gitref, builtby string
 	for _, p := range parsefrom {
 		if strings.HasPrefix(p, "App-Version: ") {
-			appver = strings.TrimSpace(strings.TrimLeft(p, "App-Version: "))
+			appver = strings.TrimSpace(strings.TrimPrefix(p, "App-Version: "))
 		}
 		if strings.HasPrefix(p, "Git-Ref: ") {
-			gitref = strings.TrimSpace(strings.TrimLeft(p, "Git-Ref: "))
+			gitref = strings.TrimSpace(strings.TrimPrefix(p, "Git-Ref: "))
 		}
 		if strings.HasPrefix(p, "Built-By: ") {
-			builtby = strings.TrimSpace(strings.TrimLeft(p, "Built-By: "))
+			builtby = strings.TrimSpace(strings.TrimPrefix(p, "Built-By: "))
 		}
 	}
 	v := &VersionInfo{
