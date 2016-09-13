@@ -29,14 +29,13 @@ func init() {
 type VersionInfo struct {
 	AppVersion string `json:"app_version"`
 	GitRef     string `json:"git_ref"`
-	BuiltBy    string `json:"built_by"`
 	ImageID    string `json:"image_id"`
 }
 
 // NewVersionInfo creates a new VersionInfo instance from info parsed out of a
 // []string.
 func NewVersionInfo(parsefrom []string, imageID string) *VersionInfo {
-	var appver, gitref, builtby string
+	var appver, gitref string
 	for _, p := range parsefrom {
 		if strings.HasPrefix(p, "App-Version: ") {
 			appver = strings.TrimSpace(strings.TrimPrefix(p, "App-Version: "))
@@ -44,14 +43,10 @@ func NewVersionInfo(parsefrom []string, imageID string) *VersionInfo {
 		if strings.HasPrefix(p, "Git-Ref: ") {
 			gitref = strings.TrimSpace(strings.TrimPrefix(p, "Git-Ref: "))
 		}
-		if strings.HasPrefix(p, "Built-By: ") {
-			builtby = strings.TrimSpace(strings.TrimPrefix(p, "Built-By: "))
-		}
 	}
 	v := &VersionInfo{
 		AppVersion: appver,
 		GitRef:     gitref,
-		BuiltBy:    builtby,
 		ImageID:    imageID,
 	}
 	return v
