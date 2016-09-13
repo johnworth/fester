@@ -27,27 +27,22 @@ func init() {
 
 // VersionInfo encapsulates version info extracted from a Docker image.
 type VersionInfo struct {
-	AppVersion string `json:"app_version"`
-	GitRef     string `json:"git_ref"`
-	ImageID    string `json:"image_id"`
+	GitRef  string `json:"git_ref"`
+	ImageID string `json:"image_id"`
 }
 
 // NewVersionInfo creates a new VersionInfo instance from info parsed out of a
 // []string.
 func NewVersionInfo(parsefrom []string, imageID string) *VersionInfo {
-	var appver, gitref string
+	var gitref string
 	for _, p := range parsefrom {
-		if strings.HasPrefix(p, "App-Version: ") {
-			appver = strings.TrimSpace(strings.TrimPrefix(p, "App-Version: "))
-		}
 		if strings.HasPrefix(p, "Git-Ref: ") {
 			gitref = strings.TrimSpace(strings.TrimPrefix(p, "Git-Ref: "))
 		}
 	}
 	v := &VersionInfo{
-		AppVersion: appver,
-		GitRef:     gitref,
-		ImageID:    imageID,
+		GitRef:  gitref,
+		ImageID: imageID,
 	}
 	return v
 }
